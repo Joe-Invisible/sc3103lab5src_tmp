@@ -4,3 +4,6 @@
 *.symvers
 *.cmd*
 *.mod*
+# The compile commands was written for a test local machine
+compile_commands.json
+.cache/
