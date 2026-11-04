@@ -1,7 +1,7 @@
+#include "linux/irqreturn.h"
+#include <linux/init.h>
 #include <linux/module.h>
-
-/* Additional includes omitted in the original handout. */
-
+#include <linux/kernel.h>
 #include <linux/gpio.h>
 #include <linux/interrupt.h>
 
@@ -11,13 +11,12 @@ static unsigned int irqNumber;       // IRQ number shared within this file.
 static bool ledOn = 0;               // Used to toggle the LED state.
 
 // GPIO interrupt handler.
-static irq_handler_t rpi_gpio_isr(unsigned int irq, void *dev_id,
-                                  struct pt_regs *regs)
+static irqreturn_t rpi_gpio_isr(int irq, void *dev_id)
 {
     /* TODO (original handout): Toggle the LED state. */
     /* TODO (original handout): Set the LED accordingly. */
     printk(KERN_ALERT "GPIO Interrupt!\n");
-    return (irq_handler_t)IRQ_HANDLED; // Announce that IRQ was handled.
+    return IRQ_HANDLED; // Announce that IRQ was handled.
 }
 
 // LKM exit function.
@@ -42,6 +41,9 @@ static int __init rpi_gpio_init(void)
 
     gpio_request(pushButton, "sysfs"); // Request the button GPIO.
     gpio_direction_input(pushButton);   // Set as input.
+    // This is the integer-based GPIO call, 
+    // This does not exist in my local, modern build tree, so I cannot 
+    // verify this module locally.
     gpio_set_debounce(pushButton, 1000); // Debounce delay (handout: 1000 ms).
 
     irqNumber = gpio_to_irq(pushButton); // Map button to IRQ number.
@@ -49,9 +51,16 @@ static int __init rpi_gpio_init(void)
 
     // Request an interrupt line.
     result = request_irq(irqNumber,          // Requested interrupt number.
-                         (irq_handler_t)rpi_gpio_isr, // ISR (as printed).
+                         rpi_gpio_isr, // ISR (as printed).
                          IRQF_TRIGGER_RISING, // Trigger on rising edge.
                          "rpi_gpio_handler",  // Name in /proc/interrupts.
                          NULL);              // No shared dev_id.
     return result;
 }
+
+module_init(rpi_gpio_init);
+module_exit(rpi_gpio_exit);
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("SC3103");
+MODULE_DESCRIPTION("Module");

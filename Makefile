@@ -7,7 +7,7 @@ CFLAGS = -Wall -Wextra
 VER := $(shell uname -r)
 BUILD ?= /lib/modules/$(VER)/build
 
-SRC = cdev_test.c
+SRC = gpio_lkm.c
 obj-m := $(SRC:.c=.o)
 
 .PHONY: all clean
