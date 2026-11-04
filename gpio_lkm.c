@@ -13,8 +13,9 @@ static bool ledOn = 0;               // Used to toggle the LED state.
 // GPIO interrupt handler.
 static irqreturn_t rpi_gpio_isr(int irq, void *dev_id)
 {
-    /* TODO (original handout): Toggle the LED state. */
-    /* TODO (original handout): Set the LED accordingly. */
+    ledOn = !ledOn;
+    gpio_set_value(ledGreen, ledOn);
+
     printk(KERN_ALERT "GPIO Interrupt!\n");
     return IRQ_HANDLED; // Announce that IRQ was handled.
 }
